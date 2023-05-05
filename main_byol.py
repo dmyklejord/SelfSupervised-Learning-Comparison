@@ -244,21 +244,21 @@ for data_aug in augmentations:
             # confusion_matrix, accuracy = helper_evaluate.make_confusion_matrix(pred_labels, test_y, len(class_names))
             # helper_evaluate.visualize_confusion_matrix(confusion_matrix, accuracy, class_names, model_name)
 
-            # TSNE analysis and visualization:
-            tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
-            helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
+            # # TSNE analysis and visualization:
+            # tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
+            # helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
 
-            # Visualize TSNE with predicted labels:
-            if len(np.unique(test_y))>1:
-                pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
+            # # Visualize TSNE with predicted labels:
+            # if len(np.unique(test_y))>1:
+            #     pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
 
-            # If data is unlabeled, we use K-means:
-            else:
-                pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
-                class_names = np.unique(pred_labels)
-                test_y = None
+            # # If data is unlabeled, we use K-means:
+            # else:
+            #     pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
+            #     class_names = np.unique(pred_labels)
+            #     test_y = None
 
-            # helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
+            # # helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
 
             os.chdir('..')
 
