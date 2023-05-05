@@ -32,6 +32,7 @@ NUM_EPOCHS = 100
 # mps is a new pytorch feature, so we check that
 # it's also available with the user's pytorch install.
 DEVICE = 'mps' if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else 'cpu'
+DEVICE = 'cuda'
 helper_evaluate.set_deterministic
 helper_evaluate.set_all_seeds(RANDOM_SEED)
 
@@ -45,8 +46,9 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 # The directory should contain folders of images, with each folder
 # having images of a certain class. Example: 2 folders for 2 classes.
 # The folder names should be the class names.
-# data_location=('data')
-data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
+data_location=('data')
+# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
+
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
 # train_loader, test_loader = helper_data.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
 # class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
@@ -123,9 +125,9 @@ for LEARNING_RATE in [0.0001, 0.0003, 0.01, 0.03, 0.06, 0.1, 1, 10]:
         backbone = nn.Sequential(*list(resnet.children())[:-1]) # removes FC layer
 
         # In this case, we want to use MoCo with a SGD optimizer:
-        model = SimCLR(backbone).to(DEVICE)
-        # optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
-        optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        model = MoCo(backbone).to(DEVICE)
+        optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+        # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
         BATCH_SIZE = NUM_DATAPOINTS
         if BATCH_SIZE > 128:
@@ -158,11 +160,11 @@ for LEARNING_RATE in [0.0001, 0.0003, 0.01, 0.03, 0.06, 0.1, 1, 10]:
             os.mkdir(model_name)
         except:
             pass
-        os.chdir('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/'+model_name)
+        os.chdir(model_name)
         
         # Train the model, returns a dict of the training loss. Change the
         # function call to train the model you want.
-        training_log_dict = helper_train.train_simclr(num_epochs=NUM_EPOCHS, model=model,
+        training_log_dict = helper_train.train_moco(num_epochs=NUM_EPOCHS, model=model,
                             optimizer=optimizer, device=DEVICE,
                             train_loader=train_loader,
                             save_model=model_name,
@@ -218,7 +220,7 @@ for LEARNING_RATE in [0.0001, 0.0003, 0.01, 0.03, 0.06, 0.1, 1, 10]:
 
         helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
 
-        os.chdir('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/')
+        os.chdir('..')
 
 quit()
 
