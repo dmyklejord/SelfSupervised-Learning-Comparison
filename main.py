@@ -49,6 +49,17 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 data_location=('data')
 # data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
 
+import urllib.request
+import zipfile
+
+# Download the dataset from the URL
+url = 'https://vision.eng.au.dk/?download=/data/WeedData/Segmented.zip'
+filename, headers = urllib.request.urlretrieve(url)
+
+# Extract the contents of the downloaded file to a folder called "data"
+with zipfile.ZipFile(filename, 'r') as zip_ref:
+    zip_ref.extractall('data')
+
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
 # train_loader, test_loader = helper_data.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
 # class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
