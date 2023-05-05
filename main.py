@@ -60,6 +60,20 @@ filename, headers = urllib.request.urlretrieve(url)
 with zipfile.ZipFile(filename, 'r') as zip_ref:
     zip_ref.extractall('data')
 
+import shutil
+
+# Move the contents of data/Segmented to data/
+src_dir = 'data/Segmented'
+dst_dir = 'data'
+for filename in os.listdir(src_dir):
+    src_path = os.path.join(src_dir, filename)
+    dst_path = os.path.join(dst_dir, filename)
+    shutil.move(src_path, dst_path)
+
+# Delete the Segmented folder
+os.rmdir('data/Segmented')
+
+
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
 # train_loader, test_loader = helper_data.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
 # class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
