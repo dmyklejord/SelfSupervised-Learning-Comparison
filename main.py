@@ -46,7 +46,7 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 # The directory should contain folders of images, with each folder
 # having images of a certain class. Example: 2 folders for 2 classes.
 # The folder names should be the class names.
-data_location=('/data')
+data_location=('data')
 # data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
 
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
@@ -141,6 +141,9 @@ for LEARNING_RATE in [0.0001, 0.0003, 0.01, 0.03, 0.06, 0.1, 1, 10]:
             model_name = f'{model.__class__.__name__}_{LEARNING_RATE}LR_{NUM_DATAPOINTS}DP_RedAug'
             train_loader, test_loader = helper_data.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
         class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
+        
+        x1, x2, label = next(iter(train_loader))
+        print(f'shape x1: {np.shape(x1)}')
 
 
         comp_log_dict = {'final_epoch_loss':[],
