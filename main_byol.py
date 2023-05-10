@@ -37,18 +37,6 @@ DEVICE = 'cuda'
 helper_evaluate.set_deterministic
 helper_evaluate.set_all_seeds(RANDOM_SEED)
 
-# Getting the data:
-# # For CIFAR10:
-# train_loader, test_loader = helper_data.get_dataloaders_cifar10(batch_size=BATCH_SIZE)
-# class_names = ('plane', 'car', 'bird', 'cat',
-#             'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
-# For other data:
-# The directory should contain folders of images, with each folder
-# having images of a certain class. Example: 2 folders for 2 classes.
-# The folder names should be the class names.
-data_location=('data')
-# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
 
 parent_dir = os.path.dirname(os.getcwd())
 if not os.path.exists(data_location):
@@ -76,6 +64,14 @@ if not os.path.exists(data_location):
 
     # Delete the Segmented folder
     os.rmdir(parent_dir + '/data/Segmented')
+
+# Getting the data:
+# The directory should contain folders of images, with each folder
+# having images of a certain class. Example: 2 folders for 2 classes.
+# The folder names should be the class names.
+data_location=(parent_dir + '/data')
+# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
+
 
 
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
