@@ -37,8 +37,15 @@ DEVICE = 'cuda'
 helper_evaluate.set_deterministic
 helper_evaluate.set_all_seeds(RANDOM_SEED)
 
-
+# Getting the data:
+# The directory should contain folders of images, with each folder
+# having images of a certain class. Example: 2 folders for 2 classes.
+# The folder names should be the class names.
 parent_dir = os.path.dirname(os.getcwd())
+data_location=(parent_dir + '/data')
+# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
+
+
 if not os.path.exists(data_location):
     import urllib.request
     import zipfile
@@ -64,14 +71,6 @@ if not os.path.exists(data_location):
 
     # Delete the Segmented folder
     os.rmdir(parent_dir + '/data/Segmented')
-
-# Getting the data:
-# The directory should contain folders of images, with each folder
-# having images of a certain class. Example: 2 folders for 2 classes.
-# The folder names should be the class names.
-data_location=(parent_dir + '/data')
-# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
-
 
 
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
