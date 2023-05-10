@@ -56,6 +56,7 @@ if not os.path.exists(data_location):
 
     # Download the dataset from the URL
     url = 'https://vision.eng.au.dk/?download=/data/WeedData/Segmented.zip'
+    print(f'Downloading dataset: {url}')
     filename, headers = urllib.request.urlretrieve(url)
 
     # Extract the contents of the downloaded file to a folder called "data"
