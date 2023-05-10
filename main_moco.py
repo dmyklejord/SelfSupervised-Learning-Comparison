@@ -38,17 +38,13 @@ helper_evaluate.set_deterministic
 helper_evaluate.set_all_seeds(RANDOM_SEED)
 
 # Getting the data:
-# # For CIFAR10:
-# train_loader, test_loader = helper_data.get_dataloaders_cifar10(batch_size=BATCH_SIZE)
-# class_names = ('plane', 'car', 'bird', 'cat',
-#             'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
-# For other data:
 # The directory should contain folders of images, with each folder
 # having images of a certain class. Example: 2 folders for 2 classes.
 # The folder names should be the class names.
-data_location=('/data')
+parent_dir = os.path.dirname(os.getcwd())
+data_location=(parent_dir + '/data')
 # data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
+
 
 if not os.path.exists(data_location):
     import urllib.request
@@ -56,24 +52,25 @@ if not os.path.exists(data_location):
 
     # Download the dataset from the URL
     url = 'https://vision.eng.au.dk/?download=/data/WeedData/Segmented.zip'
+    print(f'Downloading dataset: {url}')
     filename, headers = urllib.request.urlretrieve(url)
 
     # Extract the contents of the downloaded file to a folder called "data"
     with zipfile.ZipFile(filename, 'r') as zip_ref:
-        zip_ref.extractall('/data')
+        zip_ref.extractall(parent_dir+'/data')
 
     import shutil
 
     # Move the contents of data/Segmented to data/
-    src_dir = '/data/Segmented'
-    dst_dir = '/data'
+    src_dir = parent_dir + '/data/Segmented'
+    dst_dir = parent_dir + '/data'
     for filename in os.listdir(src_dir):
         src_path = os.path.join(src_dir, filename)
         dst_path = os.path.join(dst_dir, filename)
         shutil.move(src_path, dst_path)
 
     # Delete the Segmented folder
-    os.rmdir('/data/Segmented')
+    os.rmdir(parent_dir + '/data/Segmented')
 
 
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
@@ -244,21 +241,21 @@ for data_aug in augmentations:
             # confusion_matrix, accuracy = helper_evaluate.make_confusion_matrix(pred_labels, test_y, len(class_names))
             # helper_evaluate.visualize_confusion_matrix(confusion_matrix, accuracy, class_names, model_name)
 
-            # TSNE analysis and visualization:
-            tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
-            helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
+            # # TSNE analysis and visualization:
+            # tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
+            # helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
 
-            # Visualize TSNE with predicted labels:
-            if len(np.unique(test_y))>1:
-                pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
+            # # Visualize TSNE with predicted labels:
+            # if len(np.unique(test_y))>1:
+            #     pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
 
-            # If data is unlabeled, we use K-means:
-            else:
-                pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
-                class_names = np.unique(pred_labels)
-                test_y = None
+            # # If data is unlabeled, we use K-means:
+            # else:
+            #     pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
+            #     class_names = np.unique(pred_labels)
+            #     test_y = None
 
-            # helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
+            # # helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
 
             os.chdir('..')
 
