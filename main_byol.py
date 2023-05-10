@@ -50,6 +50,7 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 data_location=('data')
 # data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
 
+cwd = os.getcwd()
 if not os.path.exists(data_location):
     import urllib.request
     import zipfile
@@ -61,20 +62,20 @@ if not os.path.exists(data_location):
 
     # Extract the contents of the downloaded file to a folder called "data"
     with zipfile.ZipFile(filename, 'r') as zip_ref:
-        zip_ref.extractall('data')
+        zip_ref.extractall(cwd+'/data')
 
     import shutil
 
     # Move the contents of data/Segmented to data/
-    src_dir = 'data/Segmented'
-    dst_dir = 'data'
+    src_dir = cwd + '/data/Segmented'
+    dst_dir = cwd + '/data'
     for filename in os.listdir(src_dir):
         src_path = os.path.join(src_dir, filename)
         dst_path = os.path.join(dst_dir, filename)
         shutil.move(src_path, dst_path)
 
     # Delete the Segmented folder
-    os.rmdir('data/Segmented')
+    os.rmdir(cwd + '/data/Segmented')
 
 
 # train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
