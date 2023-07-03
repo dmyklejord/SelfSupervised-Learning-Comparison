@@ -283,7 +283,7 @@ def visualize_tsne(model_name, tsne_xtest, classes, test_y, close_fig=True):
     if close_fig:
         plt.close()
     else:
-         plt.show()
+        plt.show()
 
 
 def visualize_hover_images(model_name, embeddings, test_images, pred_classes, class_names=None, true_classes=None, showplot=False):

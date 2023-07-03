@@ -47,8 +47,6 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 # The folder names should be the class names.
 parent_dir = os.path.dirname(os.getcwd())
 data_location=(parent_dir + '/data')
-# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
-
 
 if not os.path.exists(data_location):
     import urllib.request
@@ -76,10 +74,6 @@ if not os.path.exists(data_location):
     # Delete the Segmented folder
     os.rmdir(parent_dir + '/data/Segmented')
 
-
-# train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
-# train_loader, test_loader = helper_data.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
-# class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
 
 # The models themselves:
 class SimCLR(nn.Module):
@@ -144,123 +138,124 @@ class BYOL(nn.Module):
         z = z.detach()
         return z
 
-data_aug = ['SimCLR']
-for LEARNING_RATE in [0.0001, 0.0003, 0.01, 0.03, 0.06, 0.1, 1, 10]:
-    for NUM_DATAPOINTS in [5, 10, 20, 50, 100, 200, 250]:
+augmentations = ['Reduced', 'SimCLR']
+for data_aug in augmentations:
+    for LEARNING_RATE in [0.0001, 0.0003, 0.01, 0.03, 0.06, 0.1, 1, 10]:
+        for NUM_DATAPOINTS in [5, 10, 20, 50, 100, 200, 250]:
 
-        # Building the backbone. Here is where you can change it to whatever you
-        # want, for example a resent50. weights=DEFAULT initializes to ImageNet1k weights:
-        resnet = torchvision.models.resnet18(weights='DEFAULT')
-        backbone = nn.Sequential(*list(resnet.children())[:-1]) # removes FC layer
+            # Building the backbone. Here is where you can change it to whatever you
+            # want, for example a resent50. weights=DEFAULT initializes to ImageNet1k weights:
+            resnet = torchvision.models.resnet18(weights='DEFAULT')
+            backbone = nn.Sequential(*list(resnet.children())[:-1]) # removes FC layer
 
-        # In this case, we want to use MoCo with a SGD optimizer:
-        model = MoCo(backbone).to(DEVICE)
-        optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
-        # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+            # In this case, we want to use MoCo with a SGD optimizer:
+            model = MoCo(backbone).to(DEVICE)
+            optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+            # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-        BATCH_SIZE = NUM_DATAPOINTS
-        if BATCH_SIZE > 128:
-            BATCH_SIZE = 128
+            BATCH_SIZE = NUM_DATAPOINTS
+            if BATCH_SIZE > 128:
+                BATCH_SIZE = 128
 
-        # Use all the data:
-        if NUM_DATAPOINTS == 250:
-            if data_aug == 'Reduced':
-                model_name=f'{model.__class__.__name__}_{LEARNING_RATE}LR_RedAug'
-                train_loader, test_loader = helper_data_reduced.get_dataloaders(data_location, batch_size=BATCH_SIZE)
-            if data_aug == 'SimCLR':
-                model_name=f'{model.__class__.__name__}_{LEARNING_RATE}LR_SimclrAug'
-                train_loader, test_loader = helper_data_simclr.get_dataloaders(data_location, batch_size=BATCH_SIZE)
+            # Use all the data:
+            if NUM_DATAPOINTS == 250:
+                if data_aug == 'Reduced':
+                    model_name=f'{model.__class__.__name__}_{LEARNING_RATE}LR_RedAug'
+                    train_loader, test_loader = helper_data_reduced.get_dataloaders(data_location, batch_size=BATCH_SIZE)
+                if data_aug == 'SimCLR':
+                    model_name=f'{model.__class__.__name__}_{LEARNING_RATE}LR_SimclrAug'
+                    train_loader, test_loader = helper_data_simclr.get_dataloaders(data_location, batch_size=BATCH_SIZE)
 
-        else:
-            if data_aug == 'Reduced':
-                model_name = f'{model.__class__.__name__}_{LEARNING_RATE}LR_{NUM_DATAPOINTS}DP_RedAug'
-                train_loader, test_loader = helper_data_reduced.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
-            if data_aug == 'SimCLR':
-                model_name = f'{model.__class__.__name__}_{LEARNING_RATE}LR_{NUM_DATAPOINTS}DP_SimclrAug'
-                train_loader, test_loader = helper_data_simclr.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
+            else:
+                if data_aug == 'Reduced':
+                    model_name = f'{model.__class__.__name__}_{LEARNING_RATE}LR_{NUM_DATAPOINTS}DP_RedAug'
+                    train_loader, test_loader = helper_data_reduced.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
+                if data_aug == 'SimCLR':
+                    model_name = f'{model.__class__.__name__}_{LEARNING_RATE}LR_{NUM_DATAPOINTS}DP_SimclrAug'
+                    train_loader, test_loader = helper_data_simclr.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
 
-        
-        class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
-        
-        comp_log_dict = {'final_epoch_loss':[],
-                        'final_batch_loss': [],
-                        'final_accuracy': [],
-                        'training_time': [],
-                        'model': model.__class__.__name__,
-                        'data_augmentations:' : data_aug,
-                        'learning_rate': LEARNING_RATE,
-                        'batch_size': BATCH_SIZE,
-                        'num_epochs': NUM_EPOCHS,
-                        'num_datapoints': NUM_DATAPOINTS,
-                        'optimizer_type': optimizer.__class__.__name__
-                        }
+            
+            class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
+            
+            comp_log_dict = {'final_epoch_loss':[],
+                            'final_batch_loss': [],
+                            'final_accuracy': [],
+                            'training_time': [],
+                            'model': model.__class__.__name__,
+                            'data_augmentations:' : data_aug,
+                            'learning_rate': LEARNING_RATE,
+                            'batch_size': BATCH_SIZE,
+                            'num_epochs': NUM_EPOCHS,
+                            'num_datapoints': NUM_DATAPOINTS,
+                            'optimizer_type': optimizer.__class__.__name__
+                            }
 
 
-        try:
-            os.mkdir(model_name)
-        except:
-            pass
-        os.chdir(model_name)
-        
-        # Train the model, returns a dict of the training loss. Change the
-        # function call to train the model you want.
-        training_log_dict = helper_train.train_moco(num_epochs=NUM_EPOCHS, model=model,
-                            optimizer=optimizer, device=DEVICE,
-                            train_loader=train_loader,
-                            save_model=model_name,
-                            logging_interval=2,
-                            save_epoch_states=False)
+            try:
+                os.mkdir(model_name)
+            except:
+                pass
+            os.chdir(model_name)
+            
+            # Train the model, returns a dict of the training loss. Change the
+            # function call to train the model you want.
+            training_log_dict = helper_train.train_moco(num_epochs=NUM_EPOCHS, model=model,
+                                optimizer=optimizer, device=DEVICE,
+                                train_loader=train_loader,
+                                save_model=model_name,
+                                logging_interval=2,
+                                save_epoch_states=False)
 
-        # Saving the log of training loss to a csv
-        import csv
-        w = csv.writer(open(model_name+'_TrainingLossLog.csv', "w"))
-        for key, val in training_log_dict.items():
-            w.writerow([key, val])
+            # Saving the log of training loss to a csv
+            import csv
+            w = csv.writer(open(model_name+'_TrainingLossLog.csv', "w"))
+            for key, val in training_log_dict.items():
+                w.writerow([key, val])
 
-        plt.plot(np.linspace(1, NUM_EPOCHS, NUM_EPOCHS), training_log_dict['train_loss_per_epoch'])
-        plt.savefig(model_name+'_EpochLossPlot.png')
+            plt.plot(np.linspace(1, NUM_EPOCHS, NUM_EPOCHS), training_log_dict['train_loss_per_epoch'])
+            plt.savefig(model_name+'_EpochLossPlot.png')
 
-        # Inference:
-        # Passing images through the trained backbone to get their embeddings/features/latent_space etc.
-        train_X, train_y, test_X, test_y, test_images, train_images = helper_evaluate.get_features(model, train_loader, test_loader, DEVICE)
-        np.savez(model_name+'_features', train_X=train_X, train_y=train_y, test_X=test_X, test_y=test_y, test_images=test_images, train_images=train_images)
+            # Inference:
+            # Passing images through the trained backbone to get their embeddings/features/latent_space etc.
+            train_X, train_y, test_X, test_y, test_images, train_images = helper_evaluate.get_features(model, train_loader, test_loader, DEVICE)
+            np.savez(model_name+'_features', train_X=train_X, train_y=train_y, test_X=test_X, test_y=test_y, test_images=test_images, train_images=train_images)
 
-        # Trains a linear classifier on the data to determine accuracy and makes a confusion matrix.
-        # Lets us see exactly what's going on under the hood, vs using sklearn.
-        # returns dict of training and final losses and accuracies.
-        eval_log_dict = helper_evaluate.lin_eval(train_X, train_y, test_X, test_y, model_name, class_names, DEVICE='cpu')
+            # Trains a linear classifier on the data to determine accuracy and makes a confusion matrix.
+            # Lets us see exactly what's going on under the hood, vs using sklearn.
+            # returns dict of training and final losses and accuracies.
+            eval_log_dict = helper_evaluate.lin_eval(train_X, train_y, test_X, test_y, model_name, class_names, DEVICE='cpu')
 
-        comp_log_dict['final_epoch_loss'] = training_log_dict['train_loss_per_epoch'][-1]
-        comp_log_dict['final_batch_loss'] = training_log_dict['train_loss_per_batch'][-1]
-        comp_log_dict['training_time'] = training_log_dict['total_time'][-1]
-        comp_log_dict['final_accuracy'] = eval_log_dict['final_accuracy'][-1]
+            comp_log_dict['final_epoch_loss'] = training_log_dict['train_loss_per_epoch'][-1]
+            comp_log_dict['final_batch_loss'] = training_log_dict['train_loss_per_batch'][-1]
+            comp_log_dict['training_time'] = training_log_dict['total_time'][-1]
+            comp_log_dict['final_accuracy'] = eval_log_dict['final_accuracy'][-1]
 
-        w = csv.writer(open(model_name+'_Meta.csv', "w"))
-        for key, val in comp_log_dict.items():
-            w.writerow([key, val])
+            w = csv.writer(open(model_name+'_Meta.csv', "w"))
+            for key, val in comp_log_dict.items():
+                w.writerow([key, val])
 
-        # BUT, it's slow, so we can use sklearn instead if we want:
-        # pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
-        # confusion_matrix, accuracy = helper_evaluate.make_confusion_matrix(pred_labels, test_y, len(class_names))
-        # helper_evaluate.visualize_confusion_matrix(confusion_matrix, accuracy, class_names, model_name)
+            # BUT, it's slow, so we can use sklearn instead if we want:
+            # pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
+            # confusion_matrix, accuracy = helper_evaluate.make_confusion_matrix(pred_labels, test_y, len(class_names))
+            # helper_evaluate.visualize_confusion_matrix(confusion_matrix, accuracy, class_names, model_name)
 
-        # # TSNE analysis and visualization:
-        # tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
-        # helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
+            # # TSNE analysis and visualization:
+            tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
+            helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
 
-        # # Visualize TSNE with predicted labels:
-        # if len(np.unique(test_y))>1:
-        #     pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
+            # Visualize TSNE with predicted labels:
+            if len(np.unique(test_y))>1:
+                pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
 
-        # # If data is unlabeled, we use K-means:
-        # else:
-        #     pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
-        #     class_names = np.unique(pred_labels)
-        #     test_y = None
+            # If data is unlabeled, we use K-means:
+            else:
+                pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
+                class_names = np.unique(pred_labels)
+                test_y = None
 
-        # # helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
+            helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=False)
 
-        os.chdir('..')
+            os.chdir('..')
 
 quit()
 

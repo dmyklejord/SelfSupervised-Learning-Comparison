@@ -52,6 +52,7 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 # The directory should contain folders of images, with each folder
 # having images of a certain class. Example: 2 folders for 2 classes.
 # The folder names should be the class names.
+parent_dir = os.path.dirname(os.getcwd())
 data_location=('/data')
 
 if not os.path.exists(data_location):
@@ -78,11 +79,6 @@ if not os.path.exists(data_location):
 
     # Delete the Segmented folder
     os.rmdir('/data/Segmented')
-
-
-# train_loader, test_loader = helper_data.get_dataloaders(data_location, batch_size=BATCH_SIZE)
-# train_loader, test_loader = helper_data.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
-# class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
 
 # The models themselves:
 class SimCLR(nn.Module):
@@ -262,7 +258,7 @@ for data_aug in augmentations:
                 class_names = np.unique(pred_labels)
                 test_y = None
 
-            # helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
+            helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=False)
 
             os.chdir('..')
 
