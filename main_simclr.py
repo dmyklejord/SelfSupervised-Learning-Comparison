@@ -181,7 +181,7 @@ for data_aug in augmentations:
                     train_loader, test_loader = helper_data_reduced.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
                 if data_aug == 'SimCLR':
                     model_name = f'{model.__class__.__name__}_{LEARNING_RATE}LR_{NUM_DATAPOINTS}DP_SimclrAug'
-                    train_loader, test_loader = helper_data_simclr.get_dataloaders(data_location, batch_size=BATCH_SIZE)
+                    train_loader, test_loader = helper_data_simclr.get_dataloaders_reduced_data(data_location, batch_size=BATCH_SIZE, num_datapoints=NUM_DATAPOINTS)
 
             
             class_names = [f.name for f in os.scandir(data_location) if f.is_dir()]
