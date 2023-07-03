@@ -32,8 +32,13 @@ NUM_EPOCHS = 100
 # Set to run on mps if available (i.e. Apple's GPU).
 # mps is a new pytorch feature, so we check that
 # it's also available with the user's pytorch install.
-DEVICE = 'mps' if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else 'cpu'
-DEVICE = 'cuda'
+# Will also check and use cuda if available. 
+# cpu fallback
+DEVICE = 'mps' if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() \
+        else 'cuda' if hasattr(torch.backends, "cuda") and torch.cuda.is_available() \
+        else 'cpu'
+
+
 helper_evaluate.set_deterministic
 helper_evaluate.set_all_seeds(RANDOM_SEED)
 
@@ -48,7 +53,6 @@ helper_evaluate.set_all_seeds(RANDOM_SEED)
 # having images of a certain class. Example: 2 folders for 2 classes.
 # The folder names should be the class names.
 data_location=('/data')
-# data_location = ('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/data')
 
 if not os.path.exists(data_location):
     import urllib.request
@@ -266,7 +270,7 @@ quit()
 
 
 '''
-# Extra functions that may be handy:
+## Extra functions that may be handy:
 
 pred_labels = helper_evaluate.kmeans_classifier_2class(test_X, test_y)
 pred_labels = helper_evaluate.kmeans_classifier(test_X, k=10)
@@ -277,20 +281,6 @@ model.load_state_dict(torch.load(f'{model_name}.pt')) # to load a pre-trained mo
 features = np.load(model_name+'_features.npz')          # to load the embedded space that you've already found
 features = np.load('MoCo_10EP_128BS_0.1LR_features.npz')
 train_X, train_y, test_X, test_y, test_images = features['train_X'], features['train_y'], features['test_X'], features['test_y'], features['test_images']   # Gets the embedded space into a usable format.
-# '''
-
-import numpy as np
-model_name = 'MoCo_0.5LR'
-features = np.load(os.listdir()[0]+'/MoCo_0.5LR_features.npz')
-train_X, train_y, test_X, test_y, test_images = features['train_X'], features['train_y'], features['test_X'], features['test_y'], features['test_images']   # Gets the embedded space into a usable format.
-
-
-feature_file_dirs = os
-import os
-os.listdir()
-
-dirs = [x.name for x in os.scandir() if x.is_dir()]
-next(os.scandir()).name
 
 # To compile all the accuracy numbers:
 acc_dict = {}
@@ -323,122 +313,4 @@ os.chdir('/Users/duanemyklejord/Documents/Capstone/PlantAutomatedScripts/')
 w = csv.writer(open('Model_Accuracies.csv', "w"))
 for key, val in acc_dict.items():
     w.writerow([key, val])
-
-### End accuracy compilation
-
-from sklearn.linear_model import LogisticRegression
-LogReg = LogisticRegression(random_state=0)
-LogReg.fit(train_X, train_y)
-pred_labels = LogReg.predict(test_X)
-
-from importlib import reload  # Python 3.4+
-import helper_evaluate
-reload(helper_evaluate)
-eval_log_dict = helper_evaluate.lin_eval(train_X, train_y, test_X, test_y, model_name, class_names, DEVICE='cpu')
-
-reload(helper_evaluate)
-tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
-helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
-
-
-# features = np.load('Pretrained_SegWeeds_features.npz')
-# train_X, train_y, test_X, test_y, test_images, train_images = features['train_X'], features['train_y'], features['test_X'], features['test_y'], features['test_images'], features['train_images']   # Gets the embedded space into a usable format.
-
-# from sklearn.cluster import KMeans
-# kmeans = KMeans(n_clusters=200, random_state=0).fit(train_X)
-# pred_labels = kmeans.labels_
-# cluster_centers = kmeans.cluster_centers_
-
-# from sklearn.neighbors import NearestNeighbors
-# NN = NearestNeighbors(n_neighbors=1).fit(train_X)
-# neighbor_idx = NN.kneighbors(cluster_centers)[1]
-
-# min_images = []
-# min_classes = []
-# for ind in neighbor_idx:
-#     min_images.append(train_images[ind])
-#     min_classes.append(train_y[ind])
-# min_images = np.squeeze(min_images)
-# min_images = (min_images*255).astype(np.uint8).transpose(0,2,3,1)
-# min_train_y = np.squeeze(min_classes)
-
-# class ImagePair(torch.utils.data.Dataset):
-#     """
-#     Returns the same image transformed two ways.
-#     https://stackoverflow.com/questions/44429199/how-to-load-a-list-of-numpy-arrays-to-pytorch-dataset-loader
-#     """
-#     def __init__(self, data, target, transform=None, target_transform=None):
-#         self.data = data
-#         self.target = target
-#         self.transform = transform
-#         self.target_transform = target_transform
-
-#     def __getitem__(self, index):
-#         """
-#         Args:
-#             index (int): Index
-
-#         Returns:
-#             tuple: (sample1 ,sample2, target) where target is class_index of the target class.
-#             sample1 and sample2 are augmented/transformed versions of sample (sample==image).
-#         """
-#         sample1 = self.data[index]
-#         sample2 = self.data[index]
-#         target = self.target[index]
-        
-#         if self.transform is not None:
-#             sample1 = self.transform(Image.fromarray(sample1))
-#             sample2 = self.transform(Image.fromarray(sample2))
-
-#         if self.target_transform is not None:
-#             target = self.target_transform(target)
-
-#         return sample1, sample2, target
-
-#     def __len__(self):
-#         return len(self.data)
-
-# from PIL import Image
-# min_dataset = ImagePair(min_images, min_train_y,  transform=helper_data.simclr_transforms.train)
-# train_loader = torch.utils.data.DataLoader(dataset=min_dataset, 
-#                                              batch_size=BATCH_SIZE,
-#                                              num_workers=0,
-#                                              drop_last=True,
-#                                              shuffle=True)
-
-# model_name='200Centroid_Pretrained_Segweeds_SimCLR_0.0003LR_128BS'
-# LEARNING_RATE = 0.0003
-# optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-# model = SimCLR(backbone).to(DEVICE)
-# log_dict = helper_train.train_simclr(num_epochs=500, model=model,
-#                     optimizer=optimizer, device=DEVICE,
-#                     train_loader=train_loader,
-#                     save_model=model_name,
-#                     logging_interval=2,
-#                     save_epoch_states=False)
-
-# import csv
-# w = csv.writer(open(model_name+'_LossLog.csv', "w"))
-# for key, val in log_dict.items():
-#     w.writerow([key, val])
-
-    
-# NUM_EPOCHS=500
-# import matplotlib.pyplot as plt
-# plt.plot(np.linspace(1, NUM_EPOCHS, NUM_EPOCHS), log_dict['train_loss_per_epoch'])
-# plt.show()
-
-# train_X, train_y, test_X, test_y, test_images, train_images = helper_evaluate.get_features(model, train_loader, test_loader, DEVICE)
-# np.savez(model_name+'_features', train_X=train_X, train_y=train_y, test_X=test_X, test_y=test_y, test_images=test_images)
-
-
-# log_dict = helper_evaluate.lin_eval(train_X, train_y, test_X, test_y, model_name, class_names, DEVICE='cpu')
-
-
-# tsne_xtest = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=20, n_iter=1000).fit_transform(test_X)
-# helper_evaluate.visualize_tsne(model_name, tsne_xtest, class_names, test_y, close_fig=True)
-# if len(np.unique(test_y))>1:
-#     pred_labels = helper_evaluate.linear_classifier(train_X, train_y, test_X, test_y)
-
-# helper_evaluate.visualize_hover_images(model_name, tsne_xtest, test_images, pred_labels, class_names, test_y, showplot=True)
-
+'''

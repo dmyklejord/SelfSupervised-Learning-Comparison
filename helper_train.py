@@ -63,7 +63,7 @@ def train_moco(num_epochs, model, optimizer, device,
                 'total_time': []}
 
     start_time = time.time()
-    criterion = NTXentLoss(memory_bank_size=512)
+    criterion = NTXentLoss(memory_bank_size=2048) #512 for smaller datasets
 
     for epoch in range(num_epochs):
         print(f'Current model: {save_model}')
