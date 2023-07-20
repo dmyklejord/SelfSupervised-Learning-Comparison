@@ -9,7 +9,7 @@ A script for looping through and training different self-supervised learning alg
 \* *Figures are from their respective papers.*
 
 ## What this script does
-This script investigates the effect of using less data for training the SSL models, and thus loops through using 5, 10, 20, 50, 100, and 200 datapoints per class (and then uses all the data as a baseline). It also tries 8 different learning with each training set size. This whole process is done twice, once with SimCLR-paper augmentations, and again with much weaker augmentations. Accuracy is judged using the linear classification protocol.
+This script investigates the effect of using less data for training the SSL models, and thus loops through using 5, 10, 20, 50, 100, and 200 datapoints per class (and then uses all the data as a baseline). It also tries 8 different learning rates with each training set size. This whole process is done twice, once with SimCLR-paper augmentations, and again with much weaker augmentations. Accuracy is judged using the linear classification protocol.
 
 You'll end up with a folder like this for each iteration:
 ![ResultingFiles](ReadmeImages/Screenshot%202023-07-03%20at%208.30.16%20AM.png)
